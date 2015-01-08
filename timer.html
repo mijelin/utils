@@ -19,14 +19,7 @@
         <input onclick='getTarget();' type='button' value='SET'>
     </form>
 
-    <!-- Stopwatch 1 -->
-    <p><div id='countUp'></div>
-    <form>
-        <input onclick='up.start();' type='button' value='START/PAUSE'>
-        <input onclick='up.reset();' type='button' value='RESET'><br>
-    </form></p>
-
-    <!-- Stopwatch 2 -->
+    <!-- Timer -->
     <p><div id='countDown'></div>
     <form>
         <input onclick='down.start();' type='button' value='START/PAUSE'>
@@ -35,16 +28,13 @@
 
     <script>
 
-        var up;     // stopwatch that counts up to user input
-        var down;   // stopwatch that counts down from user input
+        var down;
         var countTarget;
         var count;
 
-        /** Creates two Stopwatch objects. */
+        /** Creates Timer object. */
         function init() {
-            console.log("init");
-            up = new Stopwatch(document.getElementById('countUp'));
-            down = new Stopwatch(document.getElementById('countDown'));
+            down = new Timer(document.getElementById('countDown'));
             show();
         }
 
@@ -58,7 +48,6 @@
                 alert('Please enter an integer number.');
             } else {
                 countTarget = parse;
-                up.setStart(0); up.setTarget(countTarget);
                 down.setStart(countTarget); down.setTarget(0);
             }
         }
@@ -68,12 +57,7 @@
             return (parseFloat(n) == parseInt(n));
         }
 
-        /**======= STOPWATCH =======**/
-
-        // current bugs include:
-        // reset button doesn't work
-        // countDown replaces countUp
-        // goes into negative values
+        /**======= TIMER =======**/
 
         window.onload = init();
 
@@ -96,13 +80,11 @@
 
         /** Displays the current time for each stopwatch. */
         function show() {
-            console.log("show");
-            document.getElementById('countUp').innerHTML = formatTime(up.time());
             document.getElementById('countDown').innerHTML = formatTime(down.time());
         }
 
-        /** Stopwatch object at element S. */
-        function Stopwatch(s) {
+        /** Timer object at element S. */
+        function Timer(s) {
             var countStart = 0;
             var countTarget = 0;
             var currTime = 0;
@@ -117,37 +99,34 @@
               * not already running, and pauses the updating otherwise. */
             this.start = function() {
                 if (this.running) {
-                    console.log("pause");
                     if (count) {
                         clearInterval(count);
                     }
                     this.running = false;
                 } else {
-                    console.log("start");
-                    count = setInterval(this.update(), 1000);
+                    count = setInterval(this.update, 1000);
                     this.running = true;
                 }
             }
 
             /** Resets the stopwatch. */
             this.reset = function() {
-                this.running = false;
-                this.currTime = this.countStart;
+                running = false;
+                currTime = countStart;
+                console.log(formatTime(this.time()));
+                show();
             }
 
             /** Updates the stopwatch's current time. */
             this.update = function() {
                 if (currTime == countTarget) {
-                    console.log("hit end");
                     running = false;
                     clearInterval(count);
                     return;
                 } else if (countTarget > countStart) {
-                    console.log("inc");
                     currTime++;
                     show();
                 } else {
-                    console.log("dec");
                     currTime--;
                     show();
                 }
@@ -155,7 +134,6 @@
 
             /** Sets the starting time for THIS stopwatch. */
             this.setStart = function(start) {
-                console.log("start " + start);
                 countStart = start;
                 currTime = start;
                 show();
@@ -163,12 +141,10 @@
 
             /** Sets the target time for THIS stopwatch. */
             this.setTarget = function(target) {
-                console.log("target " + target);
+
                 countTarget = target;
             }
         }
-
-
 
     </script>
 
