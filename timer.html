@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+<html>
+<head>
+    <title>Timer</title>
+    <style>
+        body {
+            margin: 50px 0px;
+            padding: 0px;
+            text-align: center;
+        }
+    </style>
+
+    Enter number of seconds:
+
+    <form>
+        <input id='time' type='number'><br>
+        <input onclick='getTarget();' type='button' value='SET'>
+    </form>
+
+    <!-- Stopwatch 1 -->
+    <p><div id='countUp'></div>
+    <form>
+        <input onclick='up.start();' type='button' value='START/PAUSE'>
+        <input onclick='up.reset();' type='button' value='RESET'><br>
+    </form></p>
+
+    <!-- Stopwatch 2 -->
+    <p><div id='countDown'></div>
+    <form>
+        <input onclick='down.start();' type='button' value='START/PAUSE'>
+        <input onclick='down.reset();' type='button' value='RESET'><br>
+    </form></p>
+
+    <script>
+
+        var up;     // stopwatch that counts up to user input
+        var down;   // stopwatch that counts down from user input
+        var countTarget;
+        var count;
+
+        /** Creates two Stopwatch objects. */
+        function init() {
+            console.log("init");
+            up = new Stopwatch(document.getElementById('countUp'));
+            down = new Stopwatch(document.getElementById('countDown'));
+            show();
+        }
+
+        /** Retrieves COUNTTARGET from user input. */
+        function getTarget() {
+            input = document.getElementById('time').value;
+            parse = parseInt(input);
+            if (isNaN(parse)) {
+                alert('Please enter a number.');
+            } else if (!(isInt(input))) {
+                alert('Please enter an integer number.');
+            } else {
+                countTarget = parse;
+                up.setStart(0); up.setTarget(countTarget);
+                down.setStart(countTarget); down.setTarget(0);
+            }
+        }
+
+        /** Returns true iff N is an integer. */
+        function isInt(n) {
+            return (parseFloat(n) == parseInt(n));
+        }
+
+        /**======= STOPWATCH =======**/
+
+        // current bugs include:
+        // reset button doesn't work
+        // countDown replaces countUp
+        // goes into negative values
+
+        window.onload = init();
+
+        /** Formats stopwatch time as 'HH:MM:SS' and returns as a string. */
+        function formatTime(time) {
+            var hrs = Math.floor(time / 3600);
+            var mins = Math.floor((time - (hrs * 3600)) / 60);
+            var secs = time - (hrs * 3600) - (mins * 60);
+            hrs = digit(hrs); mins = digit(mins); secs = digit(secs);
+            return hrs + ":" + mins + ":" + secs;
+        }
+
+        /** Appends a '0' to the beginning of a single-digit number. */
+        function digit(unit) {
+            if (unit < 10) {
+                return "0" + unit;
+            }
+            return unit;
+        }
+
+        /** Displays the current time for each stopwatch. */
+        function show() {
+            console.log("show");
+            document.getElementById('countUp').innerHTML = formatTime(up.time());
+            document.getElementById('countDown').innerHTML = formatTime(down.time());
+        }
+
+        /** Stopwatch object at element S. */
+        function Stopwatch(s) {
+            var countStart = 0;
+            var countTarget = 0;
+            var currTime = 0;
+            var running = false;
+
+            /** Returns current time of THIS stopwatch. */
+            this.time = function() {
+                return currTime;
+            }
+
+            /** Starts incrementing/decrementing the time if THIS stopwatch is
+              * not already running, and pauses the updating otherwise. */
+            this.start = function() {
+                if (this.running) {
+                    console.log("pause");
+                    if (count) {
+                        clearInterval(count);
+                    }
+                    this.running = false;
+                } else {
+                    console.log("start");
+                    count = setInterval(this.update(), 1000);
+                    this.running = true;
+                }
+            }
+
+            /** Resets the stopwatch. */
+            this.reset = function() {
+                this.running = false;
+                this.currTime = this.countStart;
+            }
+
+            /** Updates the stopwatch's current time. */
+            this.update = function() {
+                if (currTime == countTarget) {
+                    console.log("hit end");
+                    running = false;
+                    clearInterval(count);
+                    return;
+                } else if (countTarget > countStart) {
+                    console.log("inc");
+                    currTime++;
+                    show();
+                } else {
+                    console.log("dec");
+                    currTime--;
+                    show();
+                }
+            }
+
+            /** Sets the starting time for THIS stopwatch. */
+            this.setStart = function(start) {
+                console.log("start " + start);
+                countStart = start;
+                currTime = start;
+                show();
+            }
+
+            /** Sets the target time for THIS stopwatch. */
+            this.setTarget = function(target) {
+                console.log("target " + target);
+                countTarget = target;
+            }
+        }
+
+
+
+    </script>
+
+</head>
+
+<body>
+</body>
+</html>
